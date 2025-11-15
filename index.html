@@ -1,0 +1,2662 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>ECOMM APP V4</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <style>
+  /* --- Login Overlay Styles --- */
+  #login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #login-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 320px;
+  }
+
+  #login-container h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: green;
+  }
+
+  #login-container input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  #login-container button {
+    width: 100%;
+  }
+
+  .main-content {
+    display: none;
+  }
+
+  /* --- Loading Overlay Styles --- */
+  #loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid green;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1.2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  body {
+    font-family: 'Roboto', Arial, sans-serif;
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    background-color: #f8f8f8;
+  }
+
+  h2 {
+    color: green;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    color: green;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+  }
+
+  .tab-button {
+    padding: 12px 25px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    background-color: #f0f0f0;
+    color: #555;
+    font-weight: bold;
+  }
+
+  .tab-button.active {
+    background-color: green;
+    color: white;
+    border-color: green;
+  }
+
+  .tab-content {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-top: none;
+    background-color: white;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .search-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  .form-group {
+    margin-bottom: 25px;
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  .form-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .form-row label {
+    width: 140px;
+    min-width: 120px;
+    font-weight: bold;
+  }
+
+  .form-row input,
+  .form-row select,
+  .form-row textarea,
+  .search-container input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 200px;
+    box-sizing: border-box;
+  }
+
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  input:read-only {
+    background-color: #e9e9e9;
+    cursor: not-allowed;
+  }
+
+  .full-width {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .full-width label {
+    width: 140px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .full-width input,
+  .full-width textarea {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  table {
+    margin-top: 20px;
+    border-collapse: collapse;
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+  }
+
+  table th,
+  table tr {
+    padding: 10px 15px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  table td {
+    border: 1px solid #cccccc;
+    padding: 0;
+    text-align: left;
+    white-space: nowrap;
+    background-color: #eeeeee;
+  }
+
+  th {
+    border: 1px solid #cccccc;
+    background-color: #d6d6d6;
+  }
+
+  table input {
+    border: 1px solid #e6e6e6;
+    background-color: white;
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+    min-width: 80px;
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  table input:focus {
+    box-shadow: 0 0 3px green;
+  }
+
+  table input:disabled,
+  table input:read-only {
+    border-color: transparent;
+    background-color: transparent;
+    cursor: default;
+  }
+
+  .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  button,
+  .search-container button {
+    padding: 12px 24px;
+    background-color: green;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+    font-size: 1em;
+  }
+
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .delete-row-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 28px;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .action-cell {
+    text-align: center;
+  }
+.form-row-triple {
+  display: flex;         /* Arranges items in a row */
+  align-items: center;   /* Vertically aligns everything neatly */
+  gap: 10px;             /* Creates space between each item */
+}
+
+.form-row-triple label {
+  white-space: nowrap;   /* Prevents long labels from wrapping */
+  margin-right: -5px;    /* Pulls the input a little closer to its label */
+}
+
+.form-row-triple input {
+  width: 100%;           /* Allows the inputs to shrink and grow to fit */
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="login-overlay">
+  <div id="login-container">
+    <h2>Login</h2>
+    <form onsubmit="handleLogin(); return false;">
+      <input type="text" id="username" placeholder="username" required>
+      <input type="password" id="password" placeholder="password" required>
+      <button type="submit" id="loginBtn">Login</button>
+    </form>
+  </div>
+</div>
+
+  <div id="loading-overlay" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="main-content">
+  <h2>Ecommerce Inventory APP V4</h2>
+
+  <div class="tabs">
+    <div class="tab-button active" onclick="openTab(event, 'orderFormTab')">Order Entry</div>
+    <div class="tab-button" onclick="openTab(event, 'incomingFormTab')">Incoming Inventory</div>
+    <div class="tab-button" onclick="openTab(event, 'outgoingFormTab')">Outgoing Inventory</div>
+    <div class="tab-button" onclick="openTab(event, 'itemsTab')">Items</div>
+    <div class="tab-button" onclick="openTab(event, 'salesReportTab')">Sales Report</div>
+    <div class="tab-button" onclick="openTab(event, 'printAWBTab')">Print Airway Bill</div>
+  </div>
+
+  <!-- Order Form Tab -->
+  <div id="orderFormTab" class="tab-content active">
+    <div class="search-container">
+      <label for="searchOrderInput">Search Transaction or Order ID:</label>
+      <input type="text" id="searchOrderInput" placeholder="Enter Transaction No. or Order ID">
+      <button id="findOrderBtn" onclick="findOrder()">Find Order</button>
+    </div>
+
+    <form id="mainOrderForm">
+      <div class="form-group">
+        <h3>Order Information</h3>
+        <div class="form-row">
+          <label for="transactionNo">Transaction No.:</label>
+          <input type="text" id="transactionNo" readonly>
+          <label for="transactionDate">Transaction Date:</label>
+          <input type="date" id="transactionDate">
+        </div>
+        <div class="form-row">
+          <label for="orderId">Order ID:</label>
+          <input type="text" id="orderId">
+          <label for="purchaseDate">Purchase Date:</label>
+          <input type="date" id="purchaseDate">
+        </div>
+        <div class="form-row">
+          <label for="paymentMethod">Payment Method:</label>
+          <select id="paymentMethod"></select>
+          <label for="orderStatus">Order Status:</label>
+          <select id="orderStatus"></select>
+        </div>
+
+        <div class="form-row">
+          <label for="cancelDate">Cancel Date:</label>
+          <input type="date" id="cancelDate">
+          <label for="cancelRemarks">Cancel Remarks:</label>
+          <input type="text" id="cancelRemarks" placeholder="Please enter cancel remarks">
+        </div>
+
+        <div class="form-row">
+          <label for="pickupDate">Pickup Date:</label>
+          <input type="date" id="pickupDate">
+          <label for="pickupCourier">Pickup Courier:</label>
+          <select id="pickupCourier"></select>
+        </div>
+        <div class="form-row">
+          <label for="dateDelivered">Date Delivered:</label>
+          <input type="date" id="dateDelivered">
+          <label for="pickupNotes">Pickup Notes:</label>
+          <input type="text" id="pickupNotes" placeholder="Enter notes/remarks">
+        </div>
+        <div class="form-row">
+          <label for="returnDate">Return Date:</label>
+          <input type="date" id="returnDate">
+          <label for="returnCourier">Return Courier:</label>
+          <select id="returnCourier"></select>
+        </div>
+        <div class="form-row">
+          <label for="returnRemarks">Return Remarks:</label>
+          <input type="text" id="returnRemarks" placeholder="Please enter return remarks">
+        </div>
+        <div class="form-row">
+          <label for="dateOrderComplete">Date Order<br>Complete:</label>
+          <input type="date" id="dateOrderComplete">
+        </div>
+        <div class="form-row">
+          <label for="orderRemarks">Order Remarks:</label>
+          <input type="text" id="orderRemarks" placeholder="Enter final order remarks">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <h3>Customer Information</h3>
+        <div class="form-row">
+          <label for="customerName">Customer Name:</label>
+          <input type="text" id="customerName">
+          <label for="gender">Gender:</label>
+          <select id="gender">
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="customerAddress">Address:</label>
+          <input type="text" id="customerAddress">
+          <label for="region">Region:</label>
+          <select id="region"></select>
+        </div>
+      </div>
+        <div class="form-row form-row-triple">
+          <label for="totalNetAmount">Total Net Amount:</label>
+          <input type="text" id="totalNetAmount" style="font-weight: bold; color: green;">
+          
+          <label for="totalGross">Total Gross Amount:</label>
+          <input type="text" id="totalGross" style="font-weight: bold; color: green;">
+          
+          <label for="totalItems">Total # of Items:</label>
+          <input type="text" id="totalItems" readonly>
+        </div>
+
+      <div class="form-group" id="orderTotalsSection">
+        <div class="form-row">
+          <label for="overallShippingFee">Shipping Fee:</label>
+          <input type="number" id="overallShippingFee" min="0" step="any" onchange="updateOrderTotals()">          
+          <label for="overallEcommVoucher">Ecomm Voucher:</label>
+          <input type="number" id="overallEcommVoucher" min="0" step="any" onchange="updateOrderTotals()">
+
+        </div>
+
+        <div class="form-row">
+          <label for="overallSellerVoucher">Seller Voucher:</label>
+          <input type="number" id="overallSellerVoucher" min="0" step="any" onchange="updateOrderTotals()">
+          <label for="overallFeesCharges">Fees & Charges:</label>
+          <input type="number" id="overallFeesCharges" min="0" step="any" onchange="updateOrderTotals()">
+        </div>
+
+        <div class="form-row">
+          <label for="overallCoins">Coins:</label>
+          <input type="number" id="overallCoins" min="0" step="any" onchange="updateOrderTotals()">
+          <label for="overallPromo">Promo:</label>
+          <input type="text" id="overallPromo" onchange="updateOrderTotals()">
+        </div>
+      </div>
+    </form>
+
+    <div class="form-group">
+      <h3 style="text-align: center;">Order Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Barcode</th>
+            <th>ItemCode</th>
+            <th>Description</th>
+            <th>Size</th>
+            <th>Qty</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>AgeGroup</th>
+            <th>NetAmount</th>
+            <th>Sell Price</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="order-items-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="button-row">
+      <button id="newOrderBtn" onclick="startNewOrder()">Add New Order</button>
+      <button id="addItemBtn" onclick="addOrderItem()" disabled>Add Item</button>
+      <button id="updateOrderBtn" onclick="updateOrder()" disabled>Update Order</button>
+      <button id="saveOrderBtn" onclick="saveOrder()" disabled>Save Order</button>
+      <button id="cancelOrderBtn" onclick="clearOrderForm()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Incoming Form Tab -->
+  <div id="incomingFormTab" class="tab-content">
+    <div class="search-container">
+      <label for="searchPONumber">Search PO Number:</label>
+      <input type="text" id="searchPONumber" placeholder="Enter PO Number">
+      <button id="findIncomingBtn" onclick="findIncoming()">Search</button>
+    </div>
+
+    <form id="incomingForm">
+      <div class="form-group">
+        <h3>Incoming Details</h3>
+        <div class="form-row">
+          <label for="incomingDate">Date:</label>
+          <input type="date" id="incomingDate" readonly>
+          <label for="incomingPONumber">PO Number:</label>
+          <input type="text" id="incomingPONumber" readonly>
+        </div>
+        <div class="form-row">
+          <label for="incomingType">Incoming Type:</label>
+          <select id="incomingType"></select>
+          <label for="incomingOrigin">Origin:</label>
+          <select id="incomingOrigin"></select>
+        </div>
+        <div class="full-width">
+          <label for="incomingNotes">Notes:</label>
+          <textarea id="incomingNotes" rows="2" placeholder="Enter any additional notes here"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group" id="incomingTotalsSection">
+        <div class="form-row">
+          <label for="totalIncomingLines">Total Lines:</label>
+          <input type="text" id="totalIncomingLines" readonly style="font-weight: bold; color: green;">
+          <label for="totalItemsIncoming">Total # of Items:</label>
+          <input type="text" id="totalItemsIncoming" readonly>
+        </div>
+      </div>
+    </form>
+
+    <div class="form-group">
+      <h3 style="text-align: center;">Incoming Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Barcode</th>
+            <th>Item Code*</th>
+            <th>Product Name</th>
+            <th>Size</th>
+            <th>Qty*</th>
+            <th>Category</th>
+            <th>Age Group</th>
+            <th>Cost Price</th>
+            <th>SRP</th>
+            <th>Brand</th>
+            <th>Supplier</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="incoming-items-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="button-row">
+      <button id="incomingNewBtn" onclick="startNewIncoming()">New Incoming</button>
+      <button id="incomingAddItemBtn" onclick="addIncomingItemRow()" disabled>Add Item</button>
+      <button id="incomingEditBtn" onclick="editIncoming()" disabled>Edit Details</button>
+      <button id="incomingSaveBtn" onclick="saveIncoming()" disabled>Save Incoming</button>
+      <button id="incomingCancelBtn" onclick="clearIncomingForm()" disabled>Cancel</button>
+    </div>
+  </div>
+
+  <!-- Outgoing Form Tab -->
+  <div id="outgoingFormTab" class="tab-content">
+    <div class="search-container">
+      <label for="searchOGNumber">Search OG Number:</label>
+      <input type="text" id="searchOGNumber" placeholder="Enter OG Number">
+      <button id="findOutgoingBtn" onclick="findOutgoing()">Search</button>
+    </div>
+
+    <form id="outgoingForm">
+      <div class="form-group">
+        <h3>Outgoing Details</h3>
+        <div class="form-row">
+          <label for="outgoingDate">Date:</label>
+          <input type="date" id="outgoingDate" readonly>
+          <label for="outgoingOGNumber">OG Number:</label>
+          <input type="text" id="outgoingOGNumber" readonly>
+        </div>
+        <div class="form-row">
+          <label for="outgoingReason">Reason:</label>
+          <select id="outgoingReason"></select>
+          <label for="outgoingDestination">Destination:</label>
+          <select id="outgoingDestination"></select>
+        </div>
+        <div class="full-width">
+          <label for="outgoingNotes">Notes:</label>
+          <textarea id="outgoingNotes" rows="2" placeholder="Enter any additional notes here"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group" id="outgoingTotalsSection">
+        <div class="form-row">
+          <label for="totaloutgoingLines">Total Lines:</label>
+          <input type="text" id="totaloutgoingLines" readonly style="font-weight: bold; color: green;">
+          <label for="totalItemsOutgoing">Total # of Items:</label>
+          <input type="text" id="totalItemsOutgoing" readonly>
+        </div>
+      </div>
+    </form>
+
+    <div class="form-group">
+      <h3 style="text-align: center;">Outgoing Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Barcode</th>
+            <th>Item Code*</th>
+            <th>Product Name</th>
+            <th>Size</th>
+            <th>Qty*</th>
+            <th>Category</th>
+            <th>Age Group</th>
+            <th>Cost Price</th>
+            <th>SRP</th>
+            <th>Brand</th>
+            <th>Supplier</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="outgoing-items-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="button-row">
+      <button id="outgoingNewBtn" onclick="startNewOutgoing()">New Outgoing</button>
+      <button id="outgoingAddItemBtn" onclick="addOutgoingItemRow()" disabled>Add Item</button>
+      <button id="outgoingEditBtn" onclick="editOutgoing()" disabled>Edit Details</button>
+      <button id="outgoingSaveBtn" onclick="saveOutgoing()" disabled>Save Outgoing</button>
+      <button id="outgoingCancelBtn" onclick="clearOutgoingForm()" disabled>Cancel</button>
+    </div>
+  </div>
+
+  <!-- Items Tab -->
+  <div id="itemsTab" class="tab-content">
+    <div class="search-container">
+      <label for="searchItemCodeLookup">Search Item:</label>
+      <input type="text" id="searchItemCodeLookup" placeholder="Enter Item Code or Barcode">
+      <button id="findItemBtn" onclick="findItemForItemsTab()">Search</button>
+    </div>
+
+    <form id="itemForm">
+      <div class="form-group">
+        <h3>Individual Item Details</h3>
+        <div class="form-row">
+          <label for="itemBarcode">Barcode:</label>
+          <input type="text" id="itemBarcode">
+          <label for="itemItemCode">Item Code*:</label>
+          <input type="text" id="itemItemCode" required>
+        </div>
+        <div class="form-row">
+          <label for="itemDescription">Description:</label>
+          <input type="text" id="itemDescription">
+          <label for="itemSize">Size:</label>
+          <input type="text" id="itemSize">
+        </div>
+        <div class="form-row">
+          <label for="itemCategory">Category:</label>
+          <select id="itemCategory"></select>
+          <label for="itemBrand">Brand:</label>
+          <select id="itemBrand"></select>
+        </div>
+        <div class="form-row">
+          <label for="itemSupplier">Supplier:</label>
+          <input type="text" id="itemSupplier" readonly>
+          <label for="itemUnit">Unit:</label>
+          <select id="itemUnit"></select>
+        </div>
+        <div class="form-row">
+          <label for="itemColor">Color:</label>
+          <select id="itemColor"></select>
+          <label for="itemAgeGroup">Age Group:</label>
+          <select id="itemAgeGroup"></select>
+        </div>
+        <div class="form-row">
+          <label for="itemSRP">SRP:</label>
+          <input type="number" id="itemSRP" min="0" step="any">
+          <label for="itemCost">Cost:</label>
+          <input type="number" id="itemCost" min="0" step="any">
+        </div>
+        <div class="form-row">
+          <label for="itemDiscPer">Disc %:</label>
+          <input type="number" id="itemDiscPer" min="0" max="100" step="any">
+          <label for="itemDiscAmount">Disc Amount:</label>
+          <input type="number" id="itemDiscAmount" min="0" step="any">
+        </div>
+        <div class="form-row">
+          <label for="itemSellPrice">Sell Price:</label>
+          <input type="number" id="itemSellPrice" readonly>
+          <label for="itemDateCreated">Date Created:</label>
+          <input type="date" id="itemDateCreated" readonly>
+        </div>
+        <div class="full-width">
+          <label for="itemNotes">Notes:</label>
+          <textarea id="itemNotes" rows="2"></textarea>
+        </div>
+      </div>
+    </form>
+
+    <div class="button-row">
+      <button id="itemNewBtn" onclick="startNewItem()">Add New Item</button>
+      <button id="itemEditBtn" onclick="editItem()" disabled>Edit Item</button>
+      <button id="itemSaveBtn" onclick="saveItem()" disabled>Save</button>
+      <button id="itemCancelBtn" onclick="clearItemsTab()" disabled>Cancel</button>
+    </div>
+  </div>
+
+  
+<div id="salesReportTab" class="tab-content">
+  <div class="form-group">
+    <h3>Report Filters</h3>
+    <div class="search-container" style="align-items: flex-start; justify-content: space-around;">
+
+      <!-- Date Filters -->
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label>Start Date:
+          <input type="date" id="reportStartDate">
+        </label>
+        <label>End Date:
+          <input type="date" id="reportEndDate">
+        </label>
+        <!-- Report Button -->
+        <button id="generateReportBtn" onclick="generateReport()" style="align-self: flex-end;">
+        Generate Report
+        </button>
+      </div>
+
+      <!-- Status Filters -->
+      <div id="statusCheckboxContainer" style="display: flex; flex-direction: column; gap: 5px; border-left: 1px solid #ccc; padding-left: 20px;">
+        <strong>Filter by Status:</strong>
+        <label>
+          <input type="checkbox" class="status-checkbox-all" onchange="toggleAllStatuses(this)">
+          <b>All Statuses</b>
+        </label>
+        <!-- Dynamic statuses will be appended here by JS -->
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <h3>Sales by Category</h3>
+    <div id="categoryChart" style="width: 100%; height: 400px;"></div>
+  </div>
+
+  <div class="form-group">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0;">Report Details</h3>
+      <h3 style="margin: 0;">Total Sales: <span id="reportTotalSales" style="color: green;"></span></h3>
+      <button id="downloadReportBtn" onclick="downloadReport()" disabled>Download as Excel</button>
+    </div>
+    <div id="reportTableContainer" style="margin-top: 15px;"></div>
+  </div>
+</div>
+
+<div id="printAWBTab" class="tab-content">
+  <div class="form-group">
+    <h2>Airway Bill Printing 🚚</h2>
+
+    <div class="search-container">
+      <label for="awbSearchOrderID">Enter Order ID or Transaction No. to Print:</label>
+      <input type="text" id="awbSearchOrderID" placeholder="e.g., ORD-001 or T12345">
+      <button id="awbGenerateBtn" onclick="triggerAWBPDF()">Generate & Download PDF</button>
+    </div>
+    
+    <p style="margin-top: 20px; color: #555;">
+      * After clicking the button, please wait briefly. The system will retrieve the order data, generate the Airway Bill on the server, and **automatically start the PDF download** to your device.
+    </p>
+    <p style="color: red;">
+      **Important Server Step:** Ensure you have updated your `Code.gs` with the `generateAirwayBillPDF` function and replaced **'YOUR_TEMP_FOLDER_ID'** with an actual Google Drive Folder ID.
+    </p>
+  </div>
+</div>
+
+
+</div> <!-- ✅ closes main-content -->
+
+
+<script>
+    // ===================================================================================
+    // ============================= LOGIN & APP INIT ====================================
+    // ===================================================================================
+ let isNewOrderMode = false; // Add this line at the top
+
+
+ 
+/**
+ * REWRITTEN to the new, simpler workflow.
+ */
+function manageOrderStatusFields(status) {
+  if (!status) return;
+
+  // 1. Start by disabling all fields
+  const allFields = document.querySelectorAll("#mainOrderForm input, #mainOrderForm select, #mainOrderForm textarea");
+  allFields.forEach(el => el.disabled = true);
+
+  // 2. Define your field groups
+const initialFields = [
+  'transactionDate', 'orderId', 'purchaseDate', 'paymentMethod', 'customerName', 
+  'gender', 'customerAddress', 'region', 'overallShippingFee', 'overallEcommVoucher', // RENAME THIS
+  'overallSellerVoucher', 'overallCoins', 'overallFeesCharges', 'overallPromo', 'totalNetAmount', 'totalGross' // ADD THIS
+];
+
+  const dispatchFields = ['pickupDate', 'pickupCourier', 'pickupNotes'];
+  const successFields = ['dateDelivered', 'dateOrderComplete', 'orderRemarks'];
+  const returnFields = ['dateDelivered', 'returnDate', 'returnCourier', 'returnRemarks', 'dateOrderComplete', 'orderRemarks'];
+   const cancelFields = ['cancelDate', 'cancelRemarks']; // <-- NEW
+
+  let fieldsToEnable = [];
+
+  // 3. Enable fields based on the order's CURRENT status
+  switch (status) {
+    case 'Processing':
+      fieldsToEnable = initialFields;
+      break;
+    case 'Canceled': // <-- NEW CASE
+      fieldsToEnable = cancelFields;
+    break;
+    case 'Dispatched':
+     fieldsToEnable = dispatchFields;
+      break;
+    case 'Delivered':
+    case 'SuccessOrder':
+      fieldsToEnable = successFields;
+      break;
+    case 'ReturnedCancel':
+    case 'ReturnedDelivered':
+    case 'LostInTransit':
+    case 'ReturnedWrongItem':
+      fieldsToEnable = returnFields;
+      break;
+  }
+  
+  // 4. Enable the determined fields
+  fieldsToEnable.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = false;
+  });
+
+  // 5. Always enable the status dropdown unless the order is locked
+  if (status !== 'COMPLETED_LOCKED') {
+    document.getElementById('orderStatus').disabled = false;
+  }
+}
+
+
+
+   /**
+ * MODIFIED to call the server for verification.
+ */
+function handleLogin() {
+  const user = document.getElementById('username').value;
+  const pass = document.getElementById('password').value;
+  if (!user || !pass) {
+    return alert("Please enter both username and password.");
+  }
+
+  showLoading(true);
+  google.script.run
+    .withSuccessHandler(onLoginSuccess)
+    .withFailureHandler(onFailure)
+    .verifyUserCredentials(user, pass);
+}
+
+/**
+ * NEW function to handle the result from the server.
+ */
+function onLoginSuccess(result) {
+  showLoading(false);
+  if (result.success) {
+    document.getElementById('login-overlay').style.display = 'none';
+    document.querySelector('.main-content').style.display = 'block';
+    initializeApp(); // Start the main application
+    // Optional: You could display a welcome message
+    // alert("Welcome, " + result.empName + "!"); 
+  } else {
+    alert(result.message);
+    document.getElementById('password').value = ''; // Clear password field
+  }
+}
+
+/**
+ * NEW: Gathers all data from the Incoming form into a single object.
+ */
+function collectIncomingData() {
+  const header = {
+    date: document.getElementById('incomingDate').value,
+    poNumber: document.getElementById('incomingPONumber').value,
+    incomingType: document.getElementById('incomingType').value,
+    incomingOrigin: document.getElementById('incomingOrigin').value,
+    notes: document.getElementById('incomingNotes').value
+  };
+
+  const items = [];
+  const itemRows = document.querySelectorAll("#incoming-items-tbody tr");
+  itemRows.forEach(row => {
+    // Collects data into an object, matching the Code.gs function's expectation
+    items.push({
+      barcode: row.querySelector('.barcode')?.value || '',
+      itemCode: row.querySelector('.itemCode')?.value || '',
+      productName: row.querySelector('.productName')?.value || '',
+      size: row.querySelector('.size')?.value || '',
+      qty: row.querySelector('.qty')?.value || '0',
+      category: row.querySelector('.category')?.value || '',
+      ageGroup: row.querySelector('.ageGroup')?.value || '',
+      costPrice: row.querySelector('.costPrice')?.value || '',
+      srp: row.querySelector('.srp')?.value || '',
+      brand: row.querySelector('.brand')?.value || '',
+      supplier: row.querySelector('.supplier')?.value || ''
+    });
+  });
+
+  return { header, items };
+}
+
+
+/**
+ * NEW: Gathers all data from the Outgoing form into a single object.
+ */
+function collectOutgoingData() {
+  const header = {
+    date: document.getElementById('outgoingDate').value,
+    ogNumber: document.getElementById('outgoingOGNumber').value,
+    outgoingReason: document.getElementById('outgoingReason').value,
+    outgoingDestination: document.getElementById('outgoingDestination').value,
+    notes: document.getElementById('outgoingNotes').value
+  };
+
+  const items = [];
+  const itemRows = document.querySelectorAll("#outgoing-items-tbody tr");
+  itemRows.forEach(row => {
+    items.push({
+      barcode: row.querySelector('.barcode')?.value || '',
+      itemCode: row.querySelector('.itemCode')?.value || '',
+      productName: row.querySelector('.productName')?.value || '',
+      size: row.querySelector('.size')?.value || '',
+      qty: row.querySelector('.qty')?.value || '0',
+      category: row.querySelector('.category')?.value || '',
+      ageGroup: row.querySelector('.ageGroup')?.value || '',
+      costPrice: row.querySelector('.costPrice')?.value || '',
+      srp: row.querySelector('.srp')?.value || '',
+      brand: row.querySelector('.brand')?.value || '',
+      supplier: row.querySelector('.supplier')?.value || ''
+    });
+  });
+
+  return { header, items };
+}
+
+
+
+    function initializeApp() {
+      // This function contains the original startup logic
+      showLoading(true);
+      toggleAllButtons(true);
+
+      openTab(null, 'orderFormTab');
+      google.script.run
+        .withSuccessHandler(data => {
+          dropdownSourceData = data;
+          populateAllDropdowns(data);
+          showLoading(false); // Hide loader after data is loaded
+          toggleAllButtons(false); // Re-enable buttons
+          clearOrderForm(); // Set initial button states
+        })
+        .withFailureHandler(onFailure) // Failure handler will also hide loader
+        .getDropdownOptions();
+
+      document.getElementById('orderStatus').addEventListener('change', (event) => {
+        manageOrderStatusFields(event.target.value);
+      });
+    }
+
+
+    // Add this function inside your <script> tag
+    function runTest() {
+      console.log("Client is trying to call the server...");
+      google.script.run
+        .withSuccessHandler(response => {
+          alert("SUCCESS! The server responded with: " + response);
+        })
+        .withFailureHandler(error => {
+          alert("FAILURE! The server connection is not working. Error: " + error.message);
+        })
+        .serverTest(); // This calls the new function in Code.gs
+    }
+
+
+    // ===================================================================================
+    // ================================ GLOBAL SETUP ===================================
+    // ===================================================================================
+
+    let originalSheetRowIndices = [];
+    let isEditingIncoming = false;
+    let isEditingOutgoing = false;
+    let dropdownSourceData = {};
+
+// =======================================================
+// NEW: LOADING STATE MANAGEMENT (Required for seamless operation)
+// Ensure your HTML has a button with id="awbTriggerButton" 
+// and an input with id="awbSearchOrderID"
+// =======================================================
+    // --- Helper functions for loading state ---
+    function showLoading(isLoading) {
+      document.getElementById('loading-overlay').style.display = isLoading ? 'flex' : 'none';
+    }
+
+    function toggleAllButtons(isDisabled) {
+      document.querySelectorAll('.main-content button').forEach(button => {
+      button.disabled = isDisabled;
+      });
+    }
+
+
+
+    function populateAllDropdowns(data) {
+      // Order Tab
+      populateDropdown("paymentMethod", data.paymentMethods);
+      populateDropdown("pickupCourier", data.couriers);
+      populateDropdown("returnCourier", data.couriers);
+      populateDropdown("region", data.region);
+      populateDropdown("orderStatus", data.orderStatus);
+      // Items Tab
+      populateDropdown("itemCategory", data.itemCategories);
+      populateDropdown("itemBrand", data.itemBrands);
+      populateDropdown("itemUnit", data.itemUnits);
+      populateDropdown("itemColor", data.itemColor);
+      populateDropdown("itemAgeGroup", data.itemAgeGroups);
+      // Incoming Tab
+      populateDropdown("incomingType", data.incomingType);
+      populateDropdown("incomingOrigin", data.incomingOrigin);
+      // Outgoing Tab
+      populateDropdown("outgoingReason", data.outgoingReasons);
+      populateDropdown("outgoingOrigin", data.outgoingOrigin);
+    }
+
+    function populateDropdown(id, values, defaultOption = "Select") {
+      const el = document.getElementById(id);
+      if (el) {
+        const currentVal = el.value;
+        el.innerHTML = `<option value="">${defaultOption}</option>`;
+        if (values) {
+          values.forEach(v => el.add(new Option(v, v)));
+        }
+        el.value = currentVal;
+      }
+    }
+
+    function openTab(evt, tabId) {
+      document.querySelectorAll(".tab-content, .tab-button").forEach(el => el.classList.remove("active"));
+      const tab = document.getElementById(tabId);
+      if (tab) {
+        tab.classList.add("active");
+      }
+      const button = evt ? evt.currentTarget : document.querySelector(`.tab-button[onclick*="${tabId}"]`);
+      if (button) {
+        button.classList.add('active');
+      }
+  if (tabId === 'orderFormTab') clearOrderForm();
+  else if (tabId === 'incomingFormTab') clearIncomingForm();
+  else if (tabId === 'outgoingFormTab') clearOutgoingForm();
+  else if (tabId === 'itemsTab') clearItemsTab();
+  else if (tabId === 'salesReportTab') clearSalesReportTab(); // Add this line
+}
+
+    const onFailure = error => {
+      showLoading(false); // Always hide loader on failure
+      toggleAllButtons(false); // Always re-enable buttons on failure
+      alert("Error: " + error.message);
+      console.error(error);
+    };
+
+    // ===================================================================================
+    // ======================= ORDER FORM LOGIC (UPDATED & COMPLETE) =====================
+    // ===================================================================================
+/**
+ * Resets the entire order form to its default state after saving.
+ */
+function clearOrderForm() {
+  isNewOrderMode = false; // Add this line
+  // 1. Reset the main form fields inside the <form> tag
+  document.getElementById('mainOrderForm').reset();
+  
+  // 2. Clear the order items table
+  document.getElementById("order-items-tbody").innerHTML = "";
+  
+  // 3. FIX: Manually clear the new totals and fees textboxes
+  document.getElementById('totalGross').value = ''; // <-- ADD THIS
+  document.getElementById('totalNetAmount').value = '';
+  document.getElementById('totalItems').value = '';
+  document.getElementById('overallShippingFee').value = '';
+  document.getElementById('overallEcommVoucher').value = ''; // RENAME THIS
+  document.getElementById('overallSellerVoucher').value = ''; // ADD THIS
+  document.getElementById('overallCoins').value = '';
+  document.getElementById('overallFeesCharges').value = '';
+  document.getElementById('overallPromo').value = '';
+  document.getElementById('cancelDate').value = '';
+  document.getElementById('cancelRemarks').value = '';
+
+  // 4. Reset button states and other variables
+  originalSheetRowIndices = [];
+  ['newOrderBtn', 'findOrderBtn'].forEach(id => document.getElementById(id).disabled = false);
+  ['addItemBtn', 'saveOrderBtn', 'updateOrderBtn', 'cancelOrderBtn'].forEach(id => document.getElementById(id).disabled = true);
+  
+  const searchInput = document.getElementById('searchOrderInput');
+  if (searchInput) {
+    searchInput.disabled = false;
+    searchInput.value = "";
+  }
+  
+  setOrderFormFieldsEditable(false);
+  populateDropdown("orderStatus", dropdownSourceData.orderStatus || []);
+  document.getElementById('orderStatus').disabled = true;
+}
+
+    function setOrderFormFieldsEditable(isEditable) {
+      document.querySelectorAll("#mainOrderForm input, #mainOrderForm select, #mainOrderForm textarea").forEach(el => {
+        if (el.id !== 'transactionNo') {
+          el.disabled = !isEditable;
+        }
+      });
+    }
+
+    // This function is called when the user clicks the "Search" button
+    function handleSearch() {
+      const poToFind = document.getElementById('searchInput').value;
+      if (!poToFind) {
+        alert("Please enter a PO number to search.");
+        return;
+      }
+
+      // This calls your Google Apps Script function
+      google.script.run
+        .withSuccessHandler(onSearchSuccess)
+        .withFailureHandler(onSearchFailure)
+        .searchIncomingRecord(poToFind);
+    }
+
+    // This function runs if the search is SUCCESSFUL
+    function onSearchSuccess(dataObject) {
+      if (dataObject) {
+        // PO was found, populate the form
+        const form = document.getElementById('incomingForm');
+
+        // Format the date correctly for the input field
+        const date = new Date(dataObject.date);
+        const formattedDate = date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + date.getDate()).slice(-2);
+
+        document.getElementById('poDate').value = formattedDate;
+        document.getElementById('poNumber').value = dataObject.poNumber;
+        document.getElementById('incomingType').value = dataObject.incomingType;
+        document.getElementById('origin').value = dataObject.origin;
+        document.getElementById('notes').value = dataObject.notes;
+
+        alert("Record found and loaded!");
+
+        // --- THIS IS THE KEY PART ---
+        // Lock the fields after loading, allowing only notes to be edited.
+        document.getElementById('poDate').disabled = true;
+        document.getElementById('poNumber').disabled = true;
+        document.getElementById('incomingType').disabled = true;
+        document.getElementById('origin').disabled = true;
+        document.getElementById('notes').disabled = false; // Keep notes editable
+
+      } else {
+        // PO was not found
+        alert("No record found with that PO Number.");
+        document.getElementById('incomingForm').reset(); // Clear the form
+      }
+    }
+
+    // This function runs if the search FAILS
+    function onSearchFailure(error) {
+      alert("Search failed: " + error.message);
+    }
+
+
+/**
+ * Sets the form and button states correctly for a NEW order.
+ */
+function startNewOrder() {
+  showLoading(true);
+  google.script.run
+    .withSuccessHandler(transNo => {
+      showLoading(false);
+      clearOrderForm();
+      document.getElementById('transactionNo').value = transNo;
+      document.getElementById('transactionDate').valueAsDate = new Date();
+      
+      populateDropdown("orderStatus", ['Processing']);
+      document.getElementById('orderStatus').value = 'Processing';
+      
+      manageOrderStatusFields('Processing');
+      
+      // --- Explicit Button States for NEW Order ---
+      document.getElementById('saveOrderBtn').disabled = false;
+      document.getElementById('addItemBtn').disabled = false;
+      document.getElementById('cancelOrderBtn').disabled = false;
+
+      document.getElementById('updateOrderBtn').disabled = true;
+      document.getElementById('newOrderBtn').disabled = true;
+      document.getElementById('findOrderBtn').disabled = true;
+    })
+    .withFailureHandler(onFailure)
+    .getNextTransactionNumber();
+}
+
+
+
+/**
+* Calculates and displays the overall totals for the order.
+* This is called whenever an item's quantity or an overall fee changes.
+*/
+function updateOrderTotals() {
+  const tableRows = document.querySelectorAll("#order-items-tbody tr");
+//   let subTotalSellPrice = 0;
+  let totalQty = 0;
+
+  tableRows.forEach(row => {
+    const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
+    const sellPrice = parseFloat(row.querySelector('.sellPrice')?.value) || 0;
+    const netAmountInput = row.querySelector('.netAmount');
+
+    totalQty += qty;
+  //   subTotalSellPrice += (sellPrice * qty);
+
+    // The net amount per item is now just its sell price
+    if (netAmountInput) {
+        netAmountInput.value = sellPrice.toFixed(2);
+    }
+  });
+
+  // Get values from the new overall fee textboxes
+  const shippingFee = parseFloat(document.getElementById('overallShippingFee').value) || 0;
+  const ecommVoucher = parseFloat(document.getElementById('overallEcommVoucher').value) || 0; // RENAME THIS
+  const sellerVoucher = parseFloat(document.getElementById('overallSellerVoucher').value) || 0; // ADD THIS
+  const coins = parseFloat(document.getElementById('overallCoins').value) || 0;
+  const feesCharges = parseFloat(document.getElementById('overallFeesCharges').value) || 0;
+
+  // Calculate the final net amount
+//  const finalNetAmount = subTotalSellPrice + shippingFee - voucher - coins - feesCharges;
+
+  // Update the display fields
+  document.getElementById('totalItems').value = totalQty;
+//  document.getElementById('totalNetAmount').value = finalNetAmount.toFixed(2);
+} 
+
+
+
+function findOrder() {
+const searchTerm = document.getElementById('searchOrderInput').value.trim();
+if (!searchTerm) return alert("Please enter a Transaction No. or an Order ID to search.");
+showLoading(true);
+// toggleAllButtons(true);
+google.script.run
+  .withSuccessHandler(data => {
+    showLoading(false);
+    onFindOrderSuccess(data);
+  })
+  .withFailureHandler(onFailure)
+  .findOrderByIdOrTransactionNo(searchTerm);
+}
+
+
+
+/**
+ * FINAL VERSION: Includes a check to make the order read-only if a completion date exists.
+ */
+function onFindOrderSuccess(orderData) {
+  isNewOrderMode = false; // Add this line
+  clearOrderForm();
+  if (!orderData || !orderData.found) {
+    alert("Order not found.");
+    return;
+  }
+  
+  alert("Order found and loaded!");
+
+  let currentStatus = orderData.orderStatus;
+  let availableStatuses = [];
+
+  // The ultimate lock: if Date Order Complete has a value, lock everything.
+  if (orderData.dateOrderComplete) {
+    currentStatus = 'COMPLETED_LOCKED';
+    availableStatuses = [orderData.orderStatus];
+  } else {
+    // --- NEW STATUS FLOW LOGIC ---
+  switch (currentStatus) {
+    case 'Processing':
+      availableStatuses = ['Processing', 'Dispatched', 'Canceled'];
+      break;
+    case 'Dispatched':
+      availableStatuses = ['Dispatched', 'Delivered', 'ReturnedCancel', 'LostInTransit'];
+      break;
+    case 'Delivered':
+      availableStatuses = ['Delivered', 'SuccessOrder', 'ReturnedDelivered', 'ReturnedWrongItem'];
+      break;
+    default: // Canceled, ReturnedCancel, LostInTransit, SuccessOrder, ReturnedDelivered are all final
+      availableStatuses = [orderData.orderStatus];
+      break;
+  }
+  }
+
+  // Set up the form based on the determined state
+  populateDropdown("orderStatus", availableStatuses);
+  manageOrderStatusFields(currentStatus);
+
+  // 2. NOW, POPULATE ALL VALUES
+  Object.keys(orderData).forEach(key => {
+    const el = document.getElementById(key) || document.getElementById('overall' + key.charAt(0).toUpperCase() + key.slice(1));
+    if (el) {
+      el.value = orderData[key] || '';
+    }
+  });
+  
+  document.getElementById('totalNetAmount').value = orderData.totalNet || '';
+  document.getElementById('totalItems').value = orderData.totalQty || '';
+  document.getElementById('orderStatus').value = orderData.orderStatus; // Always show the true status
+
+  // 3. POPULATE THE ITEMS TABLE
+  const tableBody = document.getElementById('order-items-tbody');
+  tableBody.innerHTML = '';
+  orderData.items.forEach(itemArray => {
+    const row = tableBody.insertRow();
+    const rowContent = itemArray.map(cellData => `<td><input type="text" value="${cellData || ''}" readonly></td>`).join('');
+    row.innerHTML = rowContent + '<td class="action-cell"><button type="button" class="delete-row-btn" onclick="deleteItemRow(this)" disabled>X</button></td>';
+  });
+
+  originalSheetRowIndices = orderData.sheetRowIndices;
+
+    // --- Explicit Button States for UPDATING an Order ---
+  document.getElementById('cancelOrderBtn').disabled = false;
+  
+  // The 'update' button is only enabled if the order is not locked
+  const isLocked = orderData.dateOrderComplete || ['SuccessOrder', 'ReturnedCancel', 'ReturnedDelivered', 'LostInTransit', 'CanceledPickup', 'ReturnedWrongItem'].includes(orderData.orderStatus);
+  document.getElementById('updateOrderBtn').disabled = isLocked;
+
+  document.getElementById('saveOrderBtn').disabled = true;
+  document.getElementById('addItemBtn').disabled = true;
+  document.getElementById('newOrderBtn').disabled = true;
+  document.getElementById('findOrderBtn').disabled = true;
+
+  // The update button is handled by manageOrderStatusFields
+  if (currentStatus === 'COMPLETED_LOCKED') {
+     document.getElementById('updateOrderBtn').disabled = true;
+  } else {
+     document.getElementById('updateOrderBtn').disabled = false;
+  }
+}
+
+
+
+
+/**
+ * Calculates the net amount for an item in the order table.
+ * Net Amount = Sell Price - Fees & Charges
+ * @param {HTMLInputElement} inputElement The input element that triggered the calculation.
+ */
+ /** function calculateNetAmount(inputElement) {
+    const row = inputElement.closest('tr');
+    if (!row) return;
+    const price = parseFloat(row.querySelector('.sellPrice').value) || 0;
+    const fees = parseFloat(row.querySelector('.feesAndCharges').value) || 0;
+    const netAmountInput = row.querySelector('.netAmount');
+    if (netAmountInput) {
+     netAmountInput.value = (price - fees).toFixed(2);
+    }
+  } */
+
+
+// Add this function if you don't have it.
+// Ensure it's called by your "Add Item" button.
+function addOrderItem() {
+    const tableBody = document.getElementById('order-items-tbody');
+    const row = tableBody.insertRow();
+    row.innerHTML = `
+        <td><input type="text" class="barcode"></td>
+        <td><input type="text" class="itemCode" onchange="fetchOrderItemDetails(this)"></td>
+        <td><input type="text" class="description" readonly></td>
+        <td><input type="text" class="size" readonly></td>
+        <td><input type="number" class="qty" min="1" onchange="updateOrderTotals()"></td>
+        <td><input type="text" class="category" readonly></td>
+        <td><input type="text" class="brand" readonly></td>
+        <td><input type="text" class="ageGroup" readonly></td>
+        <td><input type="text" class="netAmount"></td>
+        <td><input type="number" class="sellPrice" onchange="updateOrderTotals()"></td>
+        <td class="action-cell"><button type="button" class="delete-row-btn" onclick="deleteItemRow(this)">X</button></td>
+    `;
+    updateOrderTotals(); // Update totals when a new row is added
+}
+
+// Also ensure your delete function calls the update
+function deleteItemRow(btn) {
+    if (confirm('Are you sure you want to delete this item?')) {
+        btn.closest('tr').remove();
+        updateOrderTotals(); // Update totals when a row is removed
+    }
+}
+
+
+function fetchOrderItemDetails(inputEl) {
+    const itemCode = inputEl.value.trim();
+    if (!itemCode) return;
+    const row = inputEl.closest('tr');
+    
+    showLoading(true); // Show the loading screen
+
+    google.script.run
+        .withSuccessHandler(data => {
+            showLoading(false); // Hide loading screen on success
+            if (data && data.found) {
+                row.querySelector('.barcode').value = data.barcode || '';
+                row.querySelector('.description').value = data.description || '';
+                row.querySelector('.size').value = data.size || '';
+                row.querySelector('.category').value = data.category || '';
+                row.querySelector('.brand').value = data.brand || '';
+                row.querySelector('.ageGroup').value = data.ageGroup || '';
+                const sellPriceInput = row.querySelector('.sellPrice');
+                sellPriceInput.value = data.sellPrice || 0;
+                calculateNetAmount(sellPriceInput);
+                row.querySelector('.qty').focus();
+            } else {
+                alert('Item not found.');
+            }
+        })
+        .withFailureHandler(error => {
+            showLoading(false); // Hide loading screen on failure
+            alert("Error fetching item details: " + error.message);
+            console.error(error);
+        })
+        .getItemDetails(itemCode);
+}
+
+/**
+ * NEW FUNCTION
+ * Called when a barcode or item code is entered in a table row.
+ * @param {HTMLInputElement} inputElement The input field that triggered the event.
+ */
+function fetchItemDetailsForRow(inputElement) {
+  const itemCodeOrBarcode = inputElement.value.trim();
+  if (!itemCodeOrBarcode) return;
+
+  // Find the parent row of the input that was changed. This is crucial.
+  const row = inputElement.closest('tr');
+  showLoading(true);
+
+  google.script.run
+    // Pass the row reference to the success handler
+    .withSuccessHandler(itemData => {
+      onFetchItemDetailsSuccess(itemData, row);
+    })
+    .withFailureHandler(onFailure)
+    .getItemDetails(itemCodeOrBarcode); // Reuse the existing server function
+}
+
+/**
+ * NEW FUNCTION
+ * Populates a table row with data after a successful item lookup.
+ * @param {object} itemData The item details returned from the server.
+ * @param {HTMLTableRowElement} row The specific table row to populate.
+ */
+function onFetchItemDetailsSuccess(itemData, row) {
+  showLoading(false);
+  if (itemData && itemData.found) {
+    // Use querySelector on the specific row to find the correct input to update
+    row.querySelector('.barcode').value = itemData.barcode || '';
+    row.querySelector('.itemCode').value = itemData.itemCode || '';
+    row.querySelector('.productName').value = itemData.description || '';
+    row.querySelector('.size').value = itemData.size || '';
+    row.querySelector('.category').value = itemData.category || '';
+    row.querySelector('.ageGroup').value = itemData.ageGroup || '';
+    row.querySelector('.costPrice').value = itemData.cost || '';
+    row.querySelector('.srp').value = itemData.srp || '';
+    row.querySelector('.brand').value = itemData.brand || '';
+    row.querySelector('.supplier').value = itemData.supplier || '';
+  } else {
+    alert("Item not found. Please check the Barcode or Item Code.");
+    // Optional: Clear the input if the item was not found
+    row.querySelector('.barcode').value = '';
+    row.querySelector('.itemCode').value = '';
+  }
+}
+
+
+function collectOrderData() {
+  // Assemble the data object
+  const orderData = {
+    // Main Form Info
+    transactionNo: document.getElementById('transactionNo').value,
+    transactionDate: document.getElementById('transactionDate').value,
+    purchaseDate: document.getElementById('purchaseDate').value,
+    orderId: document.getElementById('orderId').value,
+    orderStatus: document.getElementById('orderStatus').value,
+    pickupNotes: document.getElementById('pickupNotes').value,
+    dateDelivered: document.getElementById('dateDelivered').value,
+    dateOrderComplete: document.getElementById('dateOrderComplete').value,
+    orderRemarks: document.getElementById('orderRemarks').value,
+    customerName: document.getElementById('customerName').value,
+    gender: document.getElementById('gender').value,
+    customerAddress: document.getElementById('customerAddress').value,
+    region: document.getElementById('region').value,
+    paymentMethod: document.getElementById('paymentMethod').value,
+    pickupCourier: document.getElementById('pickupCourier').value,
+    pickupDate: document.getElementById('pickupDate').value,
+    returnCourier: document.getElementById('returnCourier').value,
+    returnDate: document.getElementById('returnDate').value,
+    returnRemarks: document.getElementById('returnRemarks').value,
+    cancelDate: document.getElementById('cancelDate').value,
+    cancelRemarks: document.getElementById('cancelRemarks').value,
+
+    // NEW: Data from the totals & fees section
+    totalGross: document.getElementById('totalGross').value,
+    totalNet: document.getElementById('totalNetAmount').value,
+    totalQty: document.getElementById('totalItems').value,
+    shippingFee: document.getElementById('overallShippingFee').value,
+    ecommVoucher: document.getElementById('overallEcommVoucher').value, // RENAME THIS
+    sellerVoucher: document.getElementById('overallSellerVoucher').value, // ADD THIS
+    coins: document.getElementById('overallCoins').value,
+    feesCharges: document.getElementById('overallFeesCharges').value,
+    promo: document.getElementById('overallPromo').value,
+    
+    // This passes the original row numbers for updates
+    sheetRowIndices: originalSheetRowIndices 
+  };
+
+  // Gather the item data from the table
+  orderData.items = [];
+  const itemRows = document.querySelectorAll("#order-items-tbody tr");
+  itemRows.forEach(row => {
+    // Extracts the value from each input field in the row
+    const cells = Array.from(row.querySelectorAll("input")).map(input => input.value);
+    orderData.items.push(cells);
+  });
+
+  return orderData;
+}
+
+function saveOrder() {
+  const orderData = collectOrderData();
+
+  // --- FIX: Add validation for blank Order Status ---
+  if (!orderData.orderStatus) {
+    alert("Please select an Order Status before saving.");
+    return; // Stop the function from proceeding
+  }
+  
+  if (orderData.items.length === 0) return alert("Please add at least one item.");
+  if (!confirm("Save this new order?")) return;
+  
+  showLoading(true);
+  
+  // Disable only the relevant buttons for this action
+  document.getElementById('saveOrderBtn').disabled = true;
+  document.getElementById('addItemBtn').disabled = true;
+  document.getElementById('cancelOrderBtn').disabled = true;
+
+  google.script.run
+    .withSuccessHandler((result) => {
+      showLoading(false);
+      if (result === "success") {
+        alert("Order saved!");
+        clearOrderForm(); // This correctly resets buttons for a new entry
+      } else {
+        // This is the validation error path (e.g., "quantity is 0")
+        alert(result); 
+        // --- FIX: Re-enable only the buttons for this form ---
+        document.getElementById('saveOrderBtn').disabled = false;
+        document.getElementById('addItemBtn').disabled = false;
+        document.getElementById('cancelOrderBtn').disabled = false;
+      }
+    })
+    .withFailureHandler((error) => {
+      // Also fix the generic failure handler for network errors, etc.
+      showLoading(false);
+      alert("An unexpected error occurred: " + error.message);
+      // --- FIX: Re-enable only the buttons for this form ---
+      document.getElementById('saveOrderBtn').disabled = false;
+      document.getElementById('addItemBtn').disabled = false;
+      document.getElementById('cancelOrderBtn').disabled = false;
+    })
+    .submitOrder(orderData);
+}
+
+function updateOrder() {
+  const orderData = collectOrderData();
+  if (orderData.items.length === 0) return alert("Cannot update an order with no items.");
+  if (!confirm("Update this order?")) return;
+
+  showLoading(true);
+
+  // Disable only the relevant buttons for this action
+  document.getElementById('updateOrderBtn').disabled = true;
+  document.getElementById('cancelOrderBtn').disabled = true;
+  
+  google.script.run
+    .withSuccessHandler((result) => {
+      showLoading(false);
+      if (result === "success") {
+        alert("Order updated!");
+        clearOrderForm();
+      } else {
+        alert(result);
+        // --- FIX: Re-enable only the buttons for this form ---
+        document.getElementById('updateOrderBtn').disabled = false;
+        document.getElementById('cancelOrderBtn').disabled = false;
+      }
+    })
+    .withFailureHandler((error) => {
+      showLoading(false);
+      alert("An unexpected error occurred: " + error.message);
+      // --- FIX: Re-enable only the buttons for this form ---
+      document.getElementById('updateOrderBtn').disabled = false;
+      document.getElementById('cancelOrderBtn').disabled = false;
+    })
+    .updateExistingOrder(orderData);
+}
+
+    // ===================================================================================
+    // ============================ INCOMING FORM LOGIC (STABLE) =======================
+    // ===================================================================================
+    function clearIncomingForm() {
+        document.getElementById('incomingForm').reset();
+        document.getElementById('incoming-items-tbody').innerHTML = '';
+        document.getElementById('searchPONumber').value = '';
+        document.getElementById('searchPONumber').disabled = false;
+        document.querySelectorAll("#incomingForm select, #incomingForm textarea").forEach(el => el.disabled = true);
+        ['incomingNewBtn', 'findIncomingBtn'].forEach(id => document.getElementById(id).disabled = false);
+        ['incomingAddItemBtn', 'incomingEditBtn', 'incomingSaveBtn', 'incomingCancelBtn'].forEach(id => document.getElementById(id).disabled = true);
+        isEditingIncoming = false;
+    }
+function startNewIncoming() {
+    clearIncomingForm();
+    
+    // 1. SHOW loading screen right before calling the server.
+    showLoading(true); 
+
+    google.script.run.withSuccessHandler(po => {
+        // 2. HIDE loading screen immediately upon success.
+        showLoading(false);
+
+        document.getElementById('incomingPONumber').value = po;
+        document.getElementById('incomingDate').value = new Date().toISOString().split('T')[0];
+        ['incomingAddItemBtn', 'incomingSaveBtn', 'incomingCancelBtn'].forEach(id => document.getElementById(id).disabled = false);
+        ['incomingNewBtn', 'findIncomingBtn', 'searchPONumber'].forEach(id => document.getElementById(id).disabled = true);
+        document.querySelectorAll("#incomingForm select, #incomingForm textarea").forEach(el => el.disabled = false);
+    }).withFailureHandler(onFailure).getNextPONumber();
+}
+
+    document.getElementById('incomingType').addEventListener('change', function() {
+        const type = this.value;
+        let originList = [];
+        if (type === 'Delivery') {
+            originList = dropdownSourceData.deliveryOrigins || [];
+        } else if (type === 'Transfer') {
+            originList = dropdownSourceData.transferOrigins || [];
+        } else if (type === 'Inventory Adjustment' || type === 'Others') {
+            originList = dropdownSourceData.otherOrigins || [];
+        }
+        populateDropdown('incomingOrigin', originList, 'Select Origin');
+    });
+
+/**
+ * MODIFIED to trigger item detail lookup onchange.
+ */
+function addIncomingItemRow() {
+    const tableBody = document.getElementById('incoming-items-tbody');
+    const row = tableBody.insertRow();
+    // Note the new onchange="fetchItemDetailsForRow(this)" on Barcode and ItemCode inputs
+    row.innerHTML = `
+        <td><input type="text" class="barcode" onchange="fetchItemDetailsForRow(this)"></td>
+        <td><input type="text" class="itemCode" onchange="fetchItemDetailsForRow(this)"></td>
+        <td><input type="text" class="productName" readonly></td>
+        <td><input type="text" class="size" readonly></td>
+        <td><input type="number" class="qty" min="1" onchange="updateIncomingTotals()"></td>
+        <td><input type="text" class="category" readonly></td>
+        <td><input type="text" class="ageGroup" readonly></td>
+        <td><input type="text" class="costPrice" readonly></td>
+        <td><input type="text" class="srp" readonly></td>
+        <td><input type="text" class="brand" readonly></td>
+        <td><input type="text" class="supplier" readonly></td>
+        <td class="action-cell"><button type="button" class="delete-row-btn" onclick="deleteIncomingItemRow(this)">X</button></td>
+    `;
+    updateIncomingTotals();
+}
+
+/**
+ * MODIFIED to recalculate totals after deleting a row.
+ */
+function deleteIncomingItemRow(btn) {
+    btn.closest('tr').remove();
+    updateIncomingTotals(); // Recalculate totals
+}
+
+function fetchIncomingItemDetails(inputEl) {
+    const searchValue = inputEl.value.trim();
+    if (!searchValue) return;
+    const row = inputEl.closest('tr');
+
+    showLoading(true); // Show the loading screen
+
+    google.script.run
+        .withSuccessHandler(data => {
+            showLoading(false); // Hide loading screen on success
+            if (data.found) {
+                row.querySelector('.barcode').value = data.barcode || '';
+                row.querySelector('.itemCode').value = data.itemCode || '';
+                row.querySelector('.productName').value = data.description || '';
+                row.querySelector('.size').value = data.size || '';
+                row.querySelector('.category').value = data.category || '';
+                row.querySelector('.ageGroup').value = data.ageGroup || '';
+                row.querySelector('.costPrice').value = data.costPrice || 0;
+                row.querySelector('.srp').value = data.srp || 0;
+                row.querySelector('.brand').value = data.brand || '';
+                row.querySelector('.supplier').value = data.supplier || '';
+                row.querySelector('.qty').focus();
+            } else {
+                alert('Item not found in Master List.');
+            }
+        })
+        .withFailureHandler(error => {
+            showLoading(false); // Hide loading screen on failure
+            alert("Error fetching item details: " + error.message);
+            console.error(error);
+        })
+        .getItemDetails(searchValue);
+}
+
+
+function saveIncoming() {
+    // 1. Collect Header Data
+    const headerData = {
+        date: document.getElementById('incomingDate').value,
+        poNumber: document.getElementById('incomingPONumber').value,
+        notes: document.getElementById('incomingNotes').value,
+        incomingType: document.getElementById('incomingType').value,
+        incomingOrigin: document.getElementById('incomingOrigin').value
+    };
+
+    // 2. Collect Item Data from the table
+    const items = Array.from(document.querySelectorAll("#incoming-items-tbody tr"))
+        .map(row => {
+            let rowData = {};
+            // Using the class name on each input to build an object for the row
+            rowData.barcode = row.querySelector('.barcode').value;
+            rowData.itemCode = row.querySelector('.itemCode').value;
+            rowData.productName = row.querySelector('.productName').value;
+            rowData.size = row.querySelector('.size').value;
+            rowData.qty = row.querySelector('.qty').value;
+            rowData.category = row.querySelector('.category').value;
+            rowData.ageGroup = row.querySelector('.ageGroup').value;
+            rowData.costPrice = row.querySelector('.costPrice').value;
+            rowData.srp = row.querySelector('.srp').value;
+            rowData.brand = row.querySelector('.brand').value;
+            rowData.supplier = row.querySelector('.supplier').value;
+            return rowData;
+        })
+        .filter(item => item.itemCode && item.itemCode.trim() !== ""); // Filter out empty rows
+
+    // 3. Validate the data
+    if (items.length === 0 && !isEditingIncoming) {
+        return alert("Please add at least one item.");
+    }
+    if (!headerData.incomingType || !headerData.incomingOrigin) {
+        return alert("Incoming Type and Origin are required.");
+    }
+
+    // 4. Determine if it's a new save or an update
+    const serverFunction = isEditingIncoming ? 'updateIncoming' : 'submitIncoming';
+    const confirmationMessage = isEditingIncoming ? "Save changes?" : "Save new incoming transaction?";
+    if (!confirm(confirmationMessage)) return;
+
+    // 5. Show loading screen and call the server
+    showLoading(true);
+    toggleAllButtons(true);
+
+    google.script.run
+        .withSuccessHandler((result) => {
+            showLoading(false);
+            if (result === "success") {
+                alert(`Incoming transaction successfully ${isEditingIncoming ? 'updated' : 'saved'}!`);
+                clearIncomingForm(); // This resets the form and buttons
+            } else {
+                alert(result); // Show error message from server
+                toggleAllButtons(false); // Re-enable buttons on failure
+                        // --- FIX: Re-enable only the buttons for this form ---
+        document.getElementById('incomingNewBtn').disabled = true;
+        document.getElementById('incomingEditBtn').disabled = true;
+            }
+        })
+        .withFailureHandler(onFailure)
+        [serverFunction]({ // This calls either 'updateIncoming' or 'submitIncoming'
+            header: headerData,
+            items: items
+        });
+}
+
+
+// --- INCOMING SEARCH LOGIC ---
+
+/**
+ * Calls the server to find an incoming record by PO Number.
+ */
+function findIncoming() {
+  const poNumber = document.getElementById('searchPONumber').value.trim();
+  if (!poNumber) return alert("Please enter a PO Number to search.");
+  showLoading(true);
+  google.script.run
+    .withSuccessHandler(onFindIncomingSuccess) // This tells the script what to do on success
+    .withFailureHandler(onFailure)
+    .findIncomingByPONumber(poNumber);
+}
+
+/**
+ * FIXED FUNCTION
+ * Populates the Incoming form after a successful search and ensures the Origin dropdown updates.
+ * @param {object} result The data object returned from the server.
+ */
+function onFindIncomingSuccess(result) {
+    showLoading(false);
+    if (!result || !result.found) {
+        alert(result.message || "Incoming record not found.");
+        return;
+    }
+    
+    // Clear the form first to reset state and buttons
+    clearIncomingForm(); 
+
+    const incomingTypeEl = document.getElementById('incomingType');
+    
+    // 1. Populate header fields (excluding incomingOrigin initially)
+    document.getElementById('incomingDate').value = result.header.date;
+    document.getElementById('incomingPONumber').value = result.header.poNumber;
+    incomingTypeEl.value = result.header.incomingType;
+    document.getElementById('incomingNotes').value = result.header.notes;
+
+    // 2. *** CRITICAL FIX: Trigger the change event for incomingType ***
+    // This forces the 'incomingOrigin' dropdown to populate its options
+    // based on the loaded 'incomingType' (e.g., Delivery, Transfer).
+    if (incomingTypeEl) {
+        // Use setTimeout to allow the current function to complete and the DOM to update
+        // (though dispatchEvent should be synchronous, this is a safer approach for
+        // complex DOM updates in some environments).
+        incomingTypeEl.dispatchEvent(new Event('change'));
+    }
+
+    // 3. Set the incomingOrigin value now that the options are available
+    document.getElementById('incomingOrigin').value = result.header.incomingOrigin;
+
+    // 4. Disable all header inputs (since we are in view mode)
+    document.querySelectorAll("#incomingForm select, #incomingForm textarea").forEach(el => el.disabled = true);
+    document.getElementById('incomingNotes').disabled = true; // Ensure notes is disabled too
+
+    // 5. Populate items table
+    const tableBody = document.getElementById('incoming-items-tbody');
+    tableBody.innerHTML = ''; // Clear previous items
+    result.items.forEach(item => {
+        const row = tableBody.insertRow();
+        row.innerHTML = `
+            <td><input type="text" value="${item.barcode || ''}" class="barcode" readonly></td>
+            <td><input type="text" value="${item.itemCode || ''}" class="itemCode" readonly></td>
+            <td><input type="text" value="${item.productName || ''}" class="productName" readonly></td>
+            <td><input type="text" value="${item.size || ''}" class="size" readonly></td>
+            <td><input type="number" class="qty" value="${item.qty || 0}" onchange="updateIncomingTotals()" readonly></td>
+            <td><input type="text" value="${item.category || ''}" class="category" readonly></td>
+            <td><input type="text" value="${item.ageGroup || ''}" class="ageGroup" readonly></td>
+            <td><input type="text" value="${item.costPrice || ''}" class="costPrice" readonly></td>
+            <td><input type="text" value="${item.srp || ''}" class="srp" readonly></td>
+            <td><input type="text" value="${item.brand || ''}" class="brand" readonly></td>
+            <td><input type="text" value="${item.supplier || ''}" class="supplier" readonly></td>
+            <td class="action-cell"></td>
+        `;
+    });
+    
+    // 6. Update Totals and Button State
+    updateIncomingTotals();
+    
+    // Disable search controls
+    document.getElementById('searchPONumber').disabled = true;
+    document.getElementById('findIncomingBtn').disabled = true;
+    document.getElementById('incomingNewBtn').disabled = true;
+
+    // Enable Edit and Cancel
+    document.getElementById('incomingEditBtn').disabled = false;
+    document.getElementById('incomingCancelBtn').disabled = false;
+}
+
+
+  function editIncoming() {
+      // Re-enable the notes field just in case, and enable the Save button
+      document.getElementById('incomingNotes').disabled = false;
+      document.getElementById('incomingSaveBtn').disabled = false;
+
+      // Disable the Edit button since we are now in edit mode
+      document.getElementById('incomingEditBtn').disabled = true;
+      
+      // Set the flag for your save function to know it's an update
+      isEditingIncoming = true; 
+      
+      // Focus the cursor on the notes field for a good user experience
+      document.getElementById('incomingNotes').focus(); 
+  }
+    
+    // ===================================================================================
+    // ============================ OUTGOING FORM LOGIC (STABLE) =======================
+    // ===================================================================================
+    function clearOutgoingForm() {
+        document.getElementById('outgoingForm').reset();
+        document.getElementById('outgoing-items-tbody').innerHTML = '';
+        document.getElementById('searchOGNumber').value = '';
+        document.getElementById('searchOGNumber').disabled = false;
+        document.querySelectorAll("#outgoingForm select, #outgoingForm textarea").forEach(el => el.disabled = true);
+        ['outgoingNewBtn', 'findOutgoingBtn'].forEach(id => document.getElementById(id).disabled = false);
+        ['outgoingAddItemBtn', 'outgoingEditBtn', 'outgoingSaveBtn', 'outgoingCancelBtn'].forEach(id => document.getElementById(id).disabled = true);
+        isEditingOutgoing = false;
+    }
+
+function startNewOutgoing() {
+    clearOutgoingForm();
+
+    // 1. SHOW loading screen right before calling the server.
+    showLoading(true); 
+    
+    google.script.run.withSuccessHandler(og => {
+        // 2. HIDE loading screen immediately upon success.
+        showLoading(false);
+
+        document.getElementById('outgoingOGNumber').value = og;
+        document.getElementById('outgoingDate').value = new Date().toISOString().split('T')[0];
+        ['outgoingAddItemBtn', 'outgoingSaveBtn', 'outgoingCancelBtn'].forEach(id => document.getElementById(id).disabled = false);
+        ['outgoingNewBtn', 'findOutgoingBtn', 'searchOGNumber'].forEach(id => document.getElementById(id).disabled = true);
+        document.querySelectorAll("#outgoingForm select, #outgoingForm textarea").forEach(el => el.disabled = false);
+    }).withFailureHandler(onFailure).getNextOGNumber();
+}
+
+    document.getElementById('outgoingReason').addEventListener('change', function() {
+        const reason = this.value;
+        const destDropdown = document.getElementById('outgoingDestination');
+        let destList = [];
+        if (reason === 'Damage') {
+            destList = dropdownSourceData.damageDestinations || [];
+            populateDropdown('outgoingDestination', destList, 'Select Destination');
+        } else if (reason === 'Transfer') {
+            destList = dropdownSourceData.transferDestinations || [];
+            populateDropdown('outgoingDestination', destList, 'Select Location');
+        } else {
+            destDropdown.innerHTML = '<option value="NONE">NONE</option>';
+            destDropdown.value = "NONE";
+        }
+    });
+
+
+/**
+ * MODIFIED to trigger item detail lookup onchange.
+ */
+function addOutgoingItemRow() {
+    const tableBody = document.getElementById('outgoing-items-tbody');
+    const row = tableBody.insertRow();
+    // Note the new onchange="fetchItemDetailsForRow(this)" on Barcode and ItemCode inputs
+    row.innerHTML = `
+        <td><input type="text" class="barcode" onchange="fetchItemDetailsForRow(this)"></td>
+        <td><input type="text" class="itemCode" onchange="fetchItemDetailsForRow(this)"></td>
+        <td><input type="text" class="productName" readonly></td>
+        <td><input type="text" class="size" readonly></td>
+        <td><input type="number" class="qty" value="1" min="1" onchange="updateOutgoingTotals()"></td>
+        <td><input type="text" class="category" readonly></td>
+        <td><input type="text" class="ageGroup" readonly></td>
+        <td><input type="text" class="costPrice" readonly></td>
+        <td><input type="text" class="srp" readonly></td>
+        <td><input type="text" class="brand" readonly></td>
+        <td><input type="text" class="supplier" readonly></td>
+        <td class="action-cell"><button type="button" class="delete-row-btn" onclick="deleteOutgoingItemRow(this)">X</button></td>
+    `;
+    updateOutgoingTotals();
+}
+
+/**
+ * MODIFIED to recalculate totals after deleting a row.
+ */
+function deleteOutgoingItemRow(btn) {
+    btn.closest('tr').remove();
+    updateOutgoingTotals(); // Recalculate totals
+}  
+
+function fetchOutgoingItemDetails(inputEl) {
+    const searchValue = inputEl.value.trim();
+    if (!searchValue) return;
+    const row = inputEl.closest('tr');
+
+    showLoading(true); // Show the loading screen
+
+    google.script.run
+        .withSuccessHandler(data => {
+            showLoading(false); // Hide loading screen on success
+            if (data.found) {
+                row.querySelector('.barcode').value = data.barcode || '';
+                row.querySelector('.itemCode').value = data.itemCode || '';
+                row.querySelector('.productName').value = data.description || '';
+                row.querySelector('.size').value = data.size || '';
+                row.querySelector('.category').value = data.category || '';
+                row.querySelector('.ageGroup').value = data.ageGroup || '';
+                row.querySelector('.costPrice').value = data.costPrice || 0;
+                row.querySelector('.srp').value = data.srp || 0;
+                row.querySelector('.brand').value = data.brand || '';
+                row.querySelector('.supplier').value = data.supplier || '';
+                row.querySelector('.qty').focus();
+            } else {
+                alert('Item not found in Master List.');
+            }
+        })
+        .withFailureHandler(error => {
+            showLoading(false); // Hide loading screen on failure
+            alert("Error fetching item details: " + error.message);
+            console.error(error);
+        })
+        .getItemDetails(searchValue);
+}
+
+function saveOutgoing() {
+    const headerData = {
+        date: document.getElementById('outgoingDate').value,
+        ogNumber: document.getElementById('outgoingOGNumber').value,
+        notes: document.getElementById('outgoingNotes').value,
+        outgoingReason: document.getElementById('outgoingReason').value,
+        outgoingDestination: document.getElementById('outgoingDestination').value
+    };
+    const items = Array.from(document.querySelectorAll("#outgoing-items-tbody tr"))
+        .map(row => {
+            let rowData = {};
+            row.querySelectorAll("input").forEach(input => {rowData[input.className] = input.value;});
+            return rowData;
+        })
+        .filter(item => item.itemCode && item.itemCode.trim() !== "");
+
+    if (items.length === 0 && !isEditingOutgoing) return alert("Please add at least one item.");
+    if (!headerData.outgoingReason || !headerData.outgoingDestination) return alert("Reason and Destination are required.");
+    
+    const serverFunction = isEditingOutgoing ? 'updateOutgoing' : 'submitOutgoing';
+    const confirmationMessage = isEditingOutgoing ? "Save changes?" : "Save new outgoing transaction?";
+    if (!confirm(confirmationMessage)) return;
+
+    // <-- 1. SHOW loading screen AFTER user confirms and BEFORE calling the server.
+    showLoading(true);
+
+    google.script.run.withSuccessHandler((result) => {
+        // <-- 2. HIDE loading screen IMMEDIATELY upon success.
+        showLoading(false);
+
+        if (result === "success") {
+            alert(`Outgoing transaction successfully ${isEditingOutgoing ? 'updated' : 'saved'}!`);
+            clearOutgoingForm();
+        } else {
+            alert(result);
+        }
+    }).withFailureHandler(onFailure)[serverFunction]({ header: headerData, items: items });
+}
+
+// --- OUTGOING SEARCH LOGIC ---
+/**
+ * Calls the server to find an outgoing record by OG Number.
+ */
+function findOutgoing() {
+  const ogNumber = document.getElementById('searchOGNumber').value.trim();
+  if (!ogNumber) return alert("Please enter an OG Number to search.");
+  showLoading(true);
+  google.script.run
+    .withSuccessHandler(onFindOutgoingSuccess) // This tells the script what to do on success
+    .withFailureHandler(onFailure)
+    .findOutgoingByOGNumber(ogNumber);
+}
+
+/**
+ * FIXED FUNCTION: Populates the Outgoing form after a successful search,
+ * including triggering the 'change' event on 'outgoingReason' to ensure 
+ * 'outgoingDestination' is correctly populated.
+ * @param {object} result The data object returned from the server.
+ */
+function onFindOutgoingSuccess(result) {
+    showLoading(false);
+    if (!result || !result.found) {
+        alert(result.message || "Outgoing record not found.");
+        // Re-enable search controls if search failed
+        document.getElementById('searchOGNumber').disabled = false;
+        document.getElementById('findOutgoingBtn').disabled = false;
+        return;
+    }
+
+    // 1. Clear the form first to reset state and buttons
+    clearOutgoingForm(); 
+
+    const outgoingReasonEl = document.getElementById('outgoingReason');
+
+    // 2. Populate header fields
+    document.getElementById('outgoingDate').value = result.header.date;
+    document.getElementById('outgoingOGNumber').value = result.header.ogNumber;
+    document.getElementById('outgoingNotes').value = result.header.notes;
+    
+    // Set the Reason value
+    outgoingReasonEl.value = result.header.outgoingReason;
+
+    // 3. *** CRITICAL FIX: Trigger the change event for outgoingReason ***
+    // This forces the 'outgoingDestination' dropdown to populate its options (e.g., Damage/Transfer destinations).
+    if (outgoingReasonEl) {
+        outgoingReasonEl.dispatchEvent(new Event('change'));
+    }
+
+    // 4. Set the Destination value (options are now populated)
+    document.getElementById('outgoingDestination').value = result.header.outgoingDestination;
+    
+
+    // 5. Set all header inputs to be read-only (disable)
+    document.querySelectorAll("#outgoingForm select, #outgoingForm textarea").forEach(el => el.disabled = true);
+    
+    // 6. Populate items table
+    const tableBody = document.getElementById('outgoing-items-tbody');
+    tableBody.innerHTML = ''; // Clear previous items
+    result.items.forEach(item => {
+        const row = tableBody.insertRow();
+        
+        // Ensure ALL inputs in the item table are read-only
+        // and the action cell is cleared/disabled for view mode.
+        row.innerHTML = `
+            <td><input type="text" value="${item.barcode || ''}" class="barcode" readonly></td>
+            <td><input type="text" value="${item.itemCode || ''}" class="itemCode" readonly></td>
+            <td><input type="text" value="${item.productName || ''}" class="productName" readonly></td>
+            <td><input type="text" value="${item.size || ''}" class="size" readonly></td>
+            <td><input type="number" class="qty" value="${item.qty || 0}" onchange="updateOutgoingTotals()" readonly></td>
+            <td><input type="text" value="${item.category || ''}" class="category" readonly></td>
+            <td><input type="text" value="${item.ageGroup || ''}" class="ageGroup" readonly></td>
+            <td><input type="text" value="${item.costPrice || ''}" class="costPrice" readonly></td>
+            <td><input type="text" value="${item.srp || ''}" class="srp" readonly></td>
+            <td><input type="text" value="${item.brand || ''}" class="brand" readonly></td>
+            <td><input type="text" value="${item.supplier || ''}" class="supplier" readonly></td>
+            <td class="action-cell"></td>
+        `;
+    });
+
+    // 7. Update Totals and Button State for View Mode
+    updateOutgoingTotals();
+    
+    // Disable search/new controls
+    document.getElementById('searchOGNumber').disabled = true;
+    document.getElementById('findOutgoingBtn').disabled = true;
+    document.getElementById('outgoingNewBtn').disabled = true;
+
+    // Enable Edit and Cancel
+    document.getElementById('outgoingEditBtn').disabled = false;
+    document.getElementById('outgoingCancelBtn').disabled = false;
+}
+
+function editOutgoing() {
+    // Re-enable the Notes field for editing
+    document.getElementById('outgoingNotes').disabled = false;
+    
+    // Header Fields: Keep Reason/Destination disabled
+    document.getElementById('outgoingReason').disabled = true; 
+    document.getElementById('outgoingDestination').disabled = true; 
+    
+    // Button Logic:
+    document.getElementById('outgoingSaveBtn').disabled = false;
+    document.getElementById('outgoingEditBtn').disabled = true;
+    
+    // *** CRITICAL FIX: Disable the Add Item button ***
+    document.getElementById('outgoingAddItemBtn').disabled = true; // Adding items is NOT allowed
+    
+    // Disable other action buttons (e.g., if you had a print button)
+    
+    isEditingOutgoing = true;
+    
+    // *** Item Table Logic: Lock Qty, Hide Delete Button for Existing Rows ***
+    document.querySelectorAll("#outgoing-items-tbody tr").forEach(row => {
+        
+        // 1. ENSURE QUANTITY REMAINS DISABLED (READONLY)
+        const qtyInput = row.querySelector('.qty');
+        if (qtyInput) {
+            qtyInput.readOnly = true; 
+        }
+        
+        // 2. DISABLE/HIDE THE DELETE BUTTON ('X')
+        // The action-cell remains empty, preventing deletion of historical lines.
+        const actionCell = row.querySelector('.action-cell');
+        if (actionCell) {
+            actionCell.innerHTML = '';
+        }
+    });
+
+    document.getElementById('outgoingNotes').focus();
+}
+    
+    // ===================================================================================
+    // ============================ ITEMS TAB LOGIC (STABLE & READABLE) ==================
+    // ===================================================================================
+    function clearItemsTab() {
+        document.getElementById('itemForm').reset();
+        document.getElementById('searchItemCodeLookup').value = '';
+        document.getElementById('searchItemCodeLookup').disabled = false;
+        setItemFormEditable(false, true); 
+        document.getElementById('itemNewBtn').disabled = false;
+        document.getElementById('itemEditBtn').disabled = true;
+        document.getElementById('itemSaveBtn').disabled = true;
+        document.getElementById('itemCancelBtn').disabled = true;
+        document.getElementById('findItemBtn').disabled = false;
+    }
+    function setItemFormEditable(isEditable, isNew = false) {
+        document.querySelectorAll("#itemForm input, #itemForm select, #itemForm textarea").forEach(el => el.disabled = !isEditable);
+        document.getElementById('itemSupplier').readOnly = true;
+        document.getElementById('itemSellPrice').readOnly = true;
+        document.getElementById('itemDateCreated').readOnly = true;
+        document.getElementById('itemItemCode').readOnly = !isNew;
+    }
+    function startNewItem() {
+        clearItemsTab();
+        setItemFormEditable(true, true);
+        document.getElementById('itemDateCreated').value = new Date().toISOString().split('T')[0];
+        document.getElementById('itemDiscPer').value = "0.00";
+        document.getElementById('itemDiscAmount').value = "0.00";
+        document.getElementById('itemSaveBtn').disabled = false;
+        document.getElementById('itemCancelBtn').disabled = false;
+        document.getElementById('itemNewBtn').disabled = true;
+        document.getElementById('findItemBtn').disabled = true;
+        document.getElementById('searchItemCodeLookup').disabled = true;
+    }
+function findItemForItemsTab() {
+    const id = document.getElementById('searchItemCodeLookup').value.trim();
+    if (!id) return alert("Please enter an Item Code or Barcode.");
+
+    showLoading(true);
+    toggleAllButtons(true);
+
+    google.script.run
+        .withSuccessHandler(item => {
+            showLoading(false); // Hide loader first
+            if (item.found) {
+                Object.keys(item).forEach(key => {
+                    let elId = `item${key.charAt(0).toUpperCase() + key.slice(1)}`;
+                    if (key === 'srp') { elId = 'itemSRP'; }
+                    const el = document.getElementById(elId);
+                    if (el) { el.value = item[key]; }
+                });
+                calculateItemPrices({ target: document.getElementById('itemSRP') });
+                setItemFormEditable(false);
+                document.getElementById('itemEditBtn').disabled = false;
+                document.getElementById('itemCancelBtn').disabled = false;
+                document.getElementById('itemNewBtn').disabled = true;
+                document.getElementById('findItemBtn').disabled = true;
+                document.getElementById('searchItemCodeLookup').disabled = true;
+            } else {
+                alert("Item not found.");
+                toggleAllButtons(false); // Re-enable if not found
+            }
+        })
+        .withFailureHandler(onFailure)
+        .getItemDetails(id);
+}
+
+function editItem() {
+    // Enable only the fields that should be editable
+    document.getElementById('itemSRP').disabled = false;
+    document.getElementById('itemCost').disabled = false;
+    document.getElementById('itemDiscPer').disabled = false;
+    document.getElementById('itemDiscAmount').disabled = false;
+    document.getElementById('itemNotes').disabled = false;
+
+    // Enable the Save button and disable the Edit button
+    document.getElementById('itemSaveBtn').disabled = false;
+    document.getElementById('itemEditBtn').disabled = true;
+}
+
+function collectItemDataForSave() {
+    const data = {};
+    document.querySelectorAll("#itemForm input, #itemForm select, #itemForm textarea").forEach(el => {
+        if (el.id) {
+            let key = el.id.replace('item', '');
+            if (el.id === 'itemSRP') {
+                key = 'srp';
+            } else {
+                key = key.charAt(0).toLowerCase() + key.slice(1);
+            }
+            data[key] = el.value;
+        }
+    });
+    return data;
+}
+
+
+function saveItem() {
+    const itemData = collectItemDataForSave();
+    if (!itemData.itemCode) return alert("Item Code is required.");
+    const isUpdating = document.getElementById('itemItemCode').readOnly;
+    
+    const serverFunction = isUpdating ? 'updateIndividualItem' : 'submitIndividualItem';
+    if (!confirm(isUpdating ? "Save changes to this item?" : "Save this new item?")) return;
+    
+    showLoading(true);
+    toggleAllButtons(true);
+
+    google.script.run
+        .withSuccessHandler((result) => {
+            showLoading(false);
+            if (result === "success") {
+                alert(`Item successfully ${isUpdating ? 'updated' : 'saved'}!`);
+                clearItemsTab(); // Resets and enables correct buttons
+            } else {
+                alert(result);
+                toggleAllButtons(false); // Re-enable on failure
+            }
+        })
+        .withFailureHandler(onFailure)
+        [serverFunction](itemData);
+}
+
+    function calculateItemPrices(event) {
+        const srp = parseFloat(document.getElementById('itemSRP').value) || 0;
+        const discPerInput = document.getElementById('itemDiscPer');
+        const discAmtInput = document.getElementById('itemDiscAmount');
+        const sellPriceInput = document.getElementById('itemSellPrice');
+        const triggerId = event.target.id;
+        if (triggerId === 'itemDiscPer') {
+            const discPer = parseFloat(discPerInput.value) || 0;
+            const discAmt = srp * (discPer / 100);
+            discAmtInput.value = discAmt.toFixed(2);
+        } else if (triggerId === 'itemDiscAmount') {
+            const discAmt = parseFloat(discAmtInput.value) || 0;
+            const discPer = srp > 0 ? (discAmt / srp) * 100 : 0;
+            discPerInput.value = discPer.toFixed(2);
+        }
+        const finalDiscAmt = parseFloat(discAmtInput.value) || 0;
+        sellPriceInput.value = (srp - finalDiscAmt).toFixed(2);
+    }
+
+
+/**
+ * Calculates and displays totals for the Incoming items table.
+ */
+function updateIncomingTotals() {
+  const tableRows = document.querySelectorAll("#incoming-items-tbody tr");
+  let totalQty = 0;
+
+  tableRows.forEach(row => {
+    const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
+    totalQty += qty;
+  });
+
+  document.getElementById('totalIncomingLines').value = tableRows.length;
+  document.getElementById('totalItemsIncoming').value = totalQty;
+}
+
+/**
+ * Calculates and displays totals for the Outgoing items table.
+ */
+function updateOutgoingTotals() {
+  const tableRows = document.querySelectorAll("#outgoing-items-tbody tr");
+  let totalQty = 0;
+
+  tableRows.forEach(row => {
+    const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
+    totalQty += qty;
+  });
+
+  document.getElementById('totaloutgoingLines').value = tableRows.length;
+  document.getElementById('totalItemsOutgoing').value = totalQty;
+}
+
+
+
+function validateUniqueId(inputEl) {
+    const id = inputEl.value.trim();
+    if (!id || inputEl.readOnly) return;
+    const type = (inputEl.id === 'itemBarcode') ? 'barcode' : 'itemCode';
+    
+    showLoading(true);
+    toggleAllButtons(true);
+
+    google.script.run
+        .withSuccessHandler(isDuplicate => {
+            showLoading(false);
+            toggleAllButtons(false);
+            if (isDuplicate) {
+                alert(`Error: This ${type} '${id}' already exists. Please enter a unique value.`);
+                inputEl.value = '';
+                inputEl.focus();
+            }
+        })
+        .withFailureHandler(onFailure)
+        .checkIfItemExists(id, type);
+}
+
+    document.getElementById('itemBrand').addEventListener('change', function() {
+        const supplierInput = document.getElementById('itemSupplier');
+        if (this.value) {
+            google.script.run.withSuccessHandler(supplier => {
+                supplierInput.value = supplier;
+            }).getSupplierByBrand(this.value)
+        } else {
+            supplierInput.value = '';
+        }
+    });
+    ['itemSRP', 'itemDiscPer', 'itemDiscAmount'].forEach(id => {
+        document.getElementById(id).addEventListener('input', calculateItemPrices);
+    });
+    document.getElementById('itemBarcode').addEventListener('change', e => validateUniqueId(e.target));
+    document.getElementById('itemItemCode').addEventListener('change', e => validateUniqueId(e.target));
+// A global variable to store the latest report data for downloading
+let latestReportData = null;
+
+
+/**
+ * NEW: Toggles all status checkboxes based on the "All" checkbox.
+ */
+function toggleAllStatuses(source) {
+  const checkboxes = document.querySelectorAll('.status-checkbox');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = source.checked;
+  });
+}
+
+/**
+ * REWRITTEN to read from checkboxes.
+ */
+/**
+ * FINAL SIMPLIFIED VERSION to read from checkboxes.
+ */
+function generateReport() {
+  const startDate = document.getElementById("reportStartDate").value;
+  const endDate = document.getElementById("reportEndDate").value;
+  const statuses = Array.from(document.querySelectorAll(".status-checkbox:checked")).map(cb => cb.value);
+
+  console.log("Generating report with:", { startDate, endDate, statuses });
+
+  google.script.run
+    .withSuccessHandler(onReportDataSuccess)
+    .withFailureHandler(err => {
+      console.error("Error generating report:", err);
+      alert("Error generating report. Check logs.");
+    })
+    .getSalesReportData(startDate, endDate, statuses);
+}
+
+function onReportDataSuccess(data) {
+  console.log("Report data received:", data);
+  latestReportData = data.tableData;
+
+  const tableContainer = document.getElementById("reportTableContainer");
+  // const chartContainer = document.getElementById("categoryChart");
+  const totalSalesSpan = document.getElementById("reportTotalSales");
+  const downloadBtn = document.getElementById("downloadReportBtn");
+
+  // Handle empty data
+  if (!data || !data.tableData || data.tableData.length <= 1) {
+    tableContainer.innerHTML = "<p>No records found for the selected criteria.</p>";
+    chartContainer.innerHTML = "";
+    totalSalesSpan.textContent = "0.00";
+    downloadBtn.disabled = true;
+    latestReportData = null; // <--- ADD THIS LINE to clear old data
+    return;
+  }
+
+  const headers = data.tableData[0];
+  const rows = data.tableData.slice(1);
+
+  // Update total sales
+  totalSalesSpan.textContent = parseFloat(data.totalSales).toFixed(2);
+
+  // Build HTML table
+  let html = "<table border='1' cellpadding='5'><thead><tr>";
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += "</tr></thead><tbody>";
+  rows.forEach(row => {
+    html += "<tr>";
+    row.forEach(cell => {
+      // --- [NEW FIX] Handle the ISO date string from the server ---
+      // We check if the cell is a string that looks like our date format.
+      // The 'T' and 'Z' are characteristic of an ISO 8601 string.
+      if (typeof cell === 'string' && cell.includes('T') && cell.includes('Z')) {
+        // Create a new Date object from the string and format it
+        html += `<td>${new Date(cell).toLocaleDateString()}</td>`;
+      } else {
+        html += `<td>${cell}</td>`;
+      }
+    });
+    html += "</tr>";
+  });
+  html += "</tbody></table>";
+  tableContainer.innerHTML = html;
+  downloadBtn.disabled = false;
+
+  const chartContainer = document.getElementById("categoryChart"); // This will now find the div you added
+
+  // This block of code will now execute and draw the chart
+  if (data.chartData && Object.keys(data.chartData).length > 0) {
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(() => {
+      // 1. Converts your { "Category A": 100, "Category B": 150 } object
+      //    into an array that Google Charts understands:
+      //    [['Category', 'Sales'], ['Category A', 100], ['Category B', 150]]
+      const chartDataArray = [['Category', 'Sales']];
+      for (const category in data.chartData) {
+        chartDataArray.push([category, data.chartData[category]]);
+      }
+      
+      const chartData = google.visualization.arrayToDataTable(chartDataArray);
+      
+      const options = { 
+        title: 'Total Sales by Category',
+        pieHole: 0.4, // This makes it a "donut" chart
+      };
+      
+      // 2. Creates a new Pie Chart attached to your 'categoryChart' div
+      const chart = new google.visualization.PieChart(chartContainer);
+      
+      // 3. Draws the chart with your data and options
+      chart.draw(chartData, options);
+    });
+  } else {
+    // If no data, it shows a message in the chart div
+    chartContainer.innerHTML = "<p>No sales data to display in chart.</p>";
+  }
+}
+
+
+/**
+ * Triggers the Excel download process.
+ */
+function downloadReport() {
+  if (!latestReportData || latestReportData.length < 2) {
+    return alert("There is no report data to download.");
+  }
+  showLoading(true);
+  google.script.run
+    .withSuccessHandler(url => {
+      showLoading(false);
+      // Open the download link in a new tab
+      window.open(url, '_blank');
+    })
+    .withFailureHandler(onFailure)
+    .exportReportToExcel(latestReportData);
+}
+function clearSalesReportTab() {
+  // This function resets the sales report tab to its default state
+  document.getElementById('reportTableContainer').innerHTML = "";
+  document.getElementById('categoryChart').innerHTML = "";
+  document.getElementById('downloadReportBtn').disabled = true;
+  document.getElementById('generateReportBtn').disabled = false; // Ensure this is enabled
+}
+
+
+function loadStatuses() {
+  google.script.run
+    .withSuccessHandler(function(statuses) {
+      const container = document.getElementById("statusCheckboxContainer");
+      container.innerHTML = ""; // clear old
+
+      statuses.forEach(status => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" class="status-checkbox" value="${status}"> ${status}`;
+        container.appendChild(label);
+        container.appendChild(document.createElement("br"));
+      });
+    })
+    .withFailureHandler(err => {
+      console.error("Failed to load statuses:", err);
+    })
+    .getUniqueOrderStatuses();
+}
+
+// Run on page load
+window.onload = loadStatuses;
+
+
+
+//===========================================================================
+// Function to handle the successful generation and force a download
+//===========================================================================
+function triggerAWBPDF() {
+  const orderId = document.getElementById("awbSearchOrderID").value.trim();
+  if (!orderId) {
+    alert("Please enter a valid Order ID or Transaction No.");
+    return;
+  }
+
+  // ✅ Disable button while generating
+  document.getElementById('awbGenerateBtn').disabled = true;
+
+  google.script.run
+    .withSuccessHandler(handleAWBSuccess)
+    .withFailureHandler(handleAWBFailure)
+    .generateAirwayBillPDF(orderId);
+}
+
+function handleAWBSuccess(result) {
+  // ✅ Re-enable button
+  document.getElementById('awbGenerateBtn').disabled = false;
+
+  if (!Array.isArray(result) || result.length < 3) {
+    alert("Invalid response from server.");
+    return;
+  }
+
+  const [base64Data, fileName, orderId] = result;
+
+  // ✅ Download PDF
+  const byteChars = atob(base64Data);
+  const byteArray = new Uint8Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) byteArray[i] = byteChars.charCodeAt(i);
+
+  const blob = new Blob([byteArray], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  alert(`Airway Bill for ${orderId} downloaded successfully!`);
+
+  // ✅ Clear input automatically
+  document.getElementById("awbSearchOrderID").value = "";
+}
+
+function handleAWBFailure(error) {
+  // ✅ Re-enable button
+  document.getElementById('awbGenerateBtn').disabled = false;
+
+  alert("An error occurred: " + error.message);
+}
+
+
+
+    
+</script>
+</body>
+
+</html>
